@@ -1,25 +1,28 @@
 steps:
-  - name: 'gcr.io/cloud-builders/gradle'
-    args: ['build', '-x', 'test']
+  # 1) Compilar con Maven (sin correr tests para evitar broncas al inicio)
+  - name: "gcr.io/cloud-builders/mvn"
+    args: ["-B", "clean", "package", "-DskipTests"]
 
-  - name: 'gcr.io/cloud-builders/docker'
+  # 2) Build del contenedor
+  - name: "gcr.io/cloud-builders/docker"
     args:
       [
-        'build',
-        '-t',
-        'us-central1-docker.pkg.dev/$PROJECT_ID/java-backend-repo/java-hello-world:$SHORT_SHA',
-        '.'
+        "build",
+        "-t",
+        "us-central1-docker.pkg.dev/$PROJECT_ID/java-backend-repo/java-hello-world:$SHORT_SHA",
+        "."
       ]
 
-  - name: 'gcr.io/cloud-builders/docker'
+  # 3) Push a Artifact Registry
+  - name: "gcr.io/cloud-builders/docker"
     args:
       [
-        'push',
-        'us-central1-docker.pkg.dev/$PROJECT_ID/java-backend-repo/java-hello-world:$SHORT_SHA'
+        "push",
+        "us-central1-docker.pkg.dev/$PROJECT_ID/java-backend-repo/java-hello-world:$SHORT_SHA"
       ]
 
 images:
-  - 'us-central1-docker.pkg.dev/$PROJECT_ID/java-backend-repo/java-hello-world:$SHORT_SHA'
+  - "us-central1-docker.pkg.dev/$PROJECT_ID/java-backend-repo/java-hello-world:$SHORT_SHA"
 
 options:
   logging: CLOUD_LOGGING_ONLY
