@@ -1,26 +1,25 @@
 steps:
-  - name: 'gcr.io/cloud-builders/docker'
-    args:
-      - 'build'
-      - '-t'
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/java-backend-repo/java-hello-world:$COMMIT_SHA'
-      - '.'
+  - name: 'gcr.io/cloud-builders/gradle'
+    args: ['build', '-x', 'test']
 
   - name: 'gcr.io/cloud-builders/docker'
     args:
-      - 'push'
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/java-backend-repo/java-hello-world:$COMMIT_SHA'
+      [
+        'build',
+        '-t',
+        'us-central1-docker.pkg.dev/$PROJECT_ID/java-backend-repo/java-hello-world:$SHORT_SHA',
+        '.'
+      ]
 
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: 'gcloud'
+  - name: 'gcr.io/cloud-builders/docker'
     args:
-      - 'run'
-      - 'deploy'
-      - 'java-hello-world'
-      - '--image=us-central1-docker.pkg.dev/$PROJECT_ID/java-backend-repo/java-hello-world:$COMMIT_SHA'
-      - '--region=us-central1'
-      - '--platform=managed'
-      - '--allow-unauthenticated'
+      [
+        'push',
+        'us-central1-docker.pkg.dev/$PROJECT_ID/java-backend-repo/java-hello-world:$SHORT_SHA'
+      ]
 
 images:
-  - 'us-central1-docker.pkg.dev/$PROJECT_ID/java-backend-repo/java-hello-world:$COMMIT_SHA'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/java-backend-repo/java-hello-world:$SHORT_SHA'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
